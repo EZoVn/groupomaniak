@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-
 // cors
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -21,6 +20,7 @@ app.use(express.json());
 // app.use("/", (req, res) => {
 //   res.send("Welcome to the Groupomaniak API!");
 // });
+app.use("/api/user", require("./routes/user"));
 app.use("/api/auth", require("./routes/auth"));
 
 module.exports = app;

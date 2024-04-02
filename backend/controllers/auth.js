@@ -1,6 +1,6 @@
-const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const DB = require("../database");
+const jwt = require("jsonwebtoken");
 
 // Fonction de connexion (login)
 exports.login = async (req, res) => {
@@ -12,18 +12,27 @@ exports.login = async (req, res) => {
     const connection = await DB();
     const sql = "SELECT * FROM users WHERE email = ?";
     const [rows] = await connection.execute(sql, [email]);
-    console.log(rows);
-    await connection.end();
     if (rows.length === 0) {
+      connection.end();
       return res.status(401).json({ error: "Cet utilisateur n'existe pas" });
     }
     const user = rows[0];
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await User.checkPassword(password, user.password);
     if (!valid) {
+      connection.end();
       return res.status(401).json({ error: "Mot de passe incorrect" });
     }
-    res.status(200).json({ message: "Connexion réussie", data: user });
-
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+      process.env.TOKEN,
+      { expiresIn: process.env.TOKEN_DURING },
+    );
+    res.status(200).json({ message: "Connexion réussie", access_token: token, user_id: user.id });
+    connection.end();
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
     res.status(500).json({ error: "Erreur lors de la connexion" });
@@ -47,7 +56,7 @@ exports.signup = async (req, res) => {
     const sqlCheck = "SELECT * FROM users WHERE username = ? OR email = ?";
     const [rows] = await connection.execute(sqlCheck, [username, email]);
     if (rows.length > 0) {
-      await connection.end();
+      connection.end();
       return res.status(409).json({ error: "Cet utilisateur existe déjà" });
     }
 
@@ -55,9 +64,14 @@ exports.signup = async (req, res) => {
     const newUser = await User.beforeCreate(username, email, password);
 
     // Ajout de l'utilisateur à la base de données
-    const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
-    await connection.execute(sql, [newUser.username, newUser.email, newUser.password]);
-    await connection.end();
+    const sql =
+      "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+    await connection.execute(sql, [
+      newUser.username,
+      newUser.email,
+      newUser.password,
+    ]);
+    connection.end();
     res.status(201).json({ message: "Utilisateur créé", data: newUser });
   } catch (error) {
     console.error("Erreur lors de l'inscription :", error);

@@ -1,4 +1,4 @@
-const db = require("../database");
+// const db = require("../database");
 const bcrypt = require("bcrypt");
 
 class User {
@@ -7,6 +7,10 @@ class User {
     this.email = email;
     this.password = password;
     this.role = role;
+  }
+  // check si le mot de passe est correct
+  static async checkPassword(password, originel) {
+    return await bcrypt.compare(password, originel);
   }
   // Hacher le mot de passe
   static async beforeCreate(username, email, password) {
