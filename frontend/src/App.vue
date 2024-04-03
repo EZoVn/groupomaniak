@@ -8,5 +8,8 @@
   <router-view></router-view>
 </template>
 
-<style scoped>
+<style>
+body{
+  @apply bg-slate-500;
+}
 </style>

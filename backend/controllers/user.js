@@ -1,48 +1,45 @@
 const DB = require("../database");
+const bcrypt = require("bcrypt");
 
 exports.allUsers = async (req, res) => {
   try {
     const connection = await DB();
-    const sql = `SELECT * FROM users`;
-    // Verification des parametres de recherche dans la base de données
-    const queryParms = [];
-    if (req.query.username) {
-      sql += ` WHERE username = ?`;
-      queryParms.push(`%${req.query.username}%`);
-    }
-    if (req.query.email) {
-      if (!sql.includes("WHERE")) {
-        sql += " WHERE";
-      } else {
-        sql += " AND";
-      }
-      sql += " email LIKE ?";
-      queryParams.push(`%${req.query.email}%`);
-    }
-
-    const [rows] = await connection.execute(sql);
+    const sql = `SELECT id, username, email FROM users`; // Modify the SQL query to select only id, username, and email
+    const [result] = await connection.execute(sql);
     connection.end();
-    res.status(200).json({ data: rows });
+    res.status(200).json({ data: result });
   } catch (err) {
     res.status(500).json({ message: "Database Error", error: err });
   }
 }
+
 exports.oneUser = async (req, res) => {
   try {
     const connection = await DB();
-    const sql = `SELECT * FROM users WHERE id = ?`;
-    const [rows] = await connection.execute(sql, [req.params.id]);
+    const sql = `SELECT id, username, email FROM users WHERE id = ?`;
+    const [result] = await connection.execute(sql, [req.params.id]);
     connection.end();
-    res.status(200).json({ data: rows });
+    res.status(200).json({ data: result });
   } catch (err) {
     res.status(500).json({ message: "Database Error", error: err });
   }
 };
+
 exports.modifyUser = async (req, res) => {
+  let userId = parseInt(req.params.id);
+  console.log(userId);
+  if (!userId) {
+    return res.status(400).json({ message: `ID introuvable` });
+  }
+  console.log(req.body.password);
   try {
+    let hash = '';
+    if (req.body.password && req.body.password !== '') {
+      hash = await bcrypt.hash(req.body.password, parseInt(process.env.BCRYPT_SALT_ROUND));
+    }
     const connection = await DB();
-    const sql = `UPDATE users SET username = ?, email = ? WHERE id = ?`;
-    await connection.execute(sql, [req.body.username, req.body.email, req.params.id]);
+    const sql = `UPDATE users SET password = ? WHERE id = ?`;
+    await connection.execute(sql, [hash, userId]);
     connection.end();
     res.status(200).json({ message: "User updated" });
   } catch (err) {
