@@ -22,7 +22,7 @@ module.exports = async (req, res, next) => {
     const [rows] = await connection.execute(sql, [userId]);
     const user = rows[0];
     connection.end();
-    console.log(user);
+    // console.log(user);
 
     if (!user) {
       return res.status(401).json({

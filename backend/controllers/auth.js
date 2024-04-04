@@ -31,6 +31,7 @@ exports.login = async (req, res) => {
       process.env.TOKEN,
       { expiresIn: process.env.TOKEN_DURING },
     );
+    console.log("Connexion réussie pour l'utilisateur", user.username, token);
     res.status(200).json({ message: "Connexion réussie", access_token: token, user_id: user.id });
     connection.end();
   } catch (error) {

@@ -22,5 +22,6 @@ app.use(express.json());
 // });
 app.use("/api/user", require("./routes/user"));
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/post", require("./routes/post"));
 
 module.exports = app;

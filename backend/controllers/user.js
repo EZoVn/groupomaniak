@@ -4,12 +4,12 @@ const bcrypt = require("bcrypt");
 exports.allUsers = async (req, res) => {
   try {
     const connection = await DB();
-    const sql = `SELECT id, username, email FROM users`; // Modify the SQL query to select only id, username, and email
+    const sql = `SELECT id, username, email FROM users`;
     const [result] = await connection.execute(sql);
     connection.end();
     res.status(200).json({ data: result });
   } catch (err) {
-    res.status(500).json({ message: "Database Error", error: err });
+    res.status(500).json({ message: "Database Error" });
   }
 }
 
@@ -21,7 +21,7 @@ exports.oneUser = async (req, res) => {
     connection.end();
     res.status(200).json({ data: result });
   } catch (err) {
-    res.status(500).json({ message: "Database Error", error: err });
+    res.status(500).json({ message: "Database Error" });
   }
 };
 
@@ -43,7 +43,7 @@ exports.modifyUser = async (req, res) => {
     connection.end();
     res.status(200).json({ message: "User updated" });
   } catch (err) {
-    res.status(500).json({ message: "Database Error", error: err });
+    res.status(500).json({ message: "Database Error" });
   }
 };
 exports.deleteUser = async (req, res) => {
@@ -54,6 +54,6 @@ exports.deleteUser = async (req, res) => {
     connection.end();
     res.status(200).json({ message: "User deleted" });
   } catch (err) {
-    res.status(500).json({ message: "Database Error", error: err });
+    res.status(500).json({ message: "Database Error" });
   }
 };
