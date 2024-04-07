@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const path = require("path");
 // cors
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -17,9 +18,8 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// app.use("/", (req, res) => {
-//   res.send("Welcome to the Groupomaniak API!");
-// });
+app.use("/images", express.static(path.join(__dirname, "images")));
+
 app.use("/api/user", require("./routes/user"));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/post", require("./routes/post"));

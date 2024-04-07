@@ -1,5 +1,5 @@
 const DB = require("../database");
-// const fs = require("fs");
+const fs = require("fs");
 const Post = require("../models/post");
 
 exports.createPost = async (req, res, next) => {
@@ -7,16 +7,16 @@ exports.createPost = async (req, res, next) => {
   if (!userId || !content) {
     return res.status(400).json({ message: "Missing required fields" });
   }
-
   try {
     const connection = await DB();
     if (req.file) {
+      let imgUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
       const post = new Post(
         userId,
         content,
-        `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+        imgUrl
       );
-      const sql = `INSERT INTO posts (user_id, content, image_url) VALUES (?, ?, ?)`;
+      const sql = `INSERT INTO posts (user_id, content, imgUrl) VALUES (?, ?, ?)`;
       await connection.execute(sql, [post.userId, post.content, post.imgUrl]);
       connection.end();
       return res.status(201).json({ message: "Post created" });

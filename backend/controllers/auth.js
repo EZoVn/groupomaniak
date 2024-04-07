@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ error: "Mauvais email ou mot de passe" });
+    return res.status(400).json({ message: "Mauvais email ou mot de passe" });
   }
   try {
     const connection = await DB();
@@ -14,13 +14,13 @@ exports.login = async (req, res) => {
     const [rows] = await connection.execute(sql, [email]);
     if (rows.length === 0) {
       connection.end();
-      return res.status(401).json({ error: "Cet utilisateur n'existe pas" });
+      return res.status(401).json({ message: "Cet utilisateur n'existe pas" });
     }
     const user = rows[0];
     const valid = await User.checkPassword(password, user.password);
     if (!valid) {
       connection.end();
-      return res.status(401).json({ error: "Mot de passe incorrect" });
+      return res.status(401).json({ message: "Mot de passe incorrect" });
     }
     const token = jwt.sign(
       {
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
       process.env.TOKEN,
       { expiresIn: process.env.TOKEN_DURING },
     );
-    console.log("Connexion réussie pour l'utilisateur", user.username, token);
+    console.log(token);
     res.status(200).json({ message: "Connexion réussie", access_token: token, user_id: user.id });
     connection.end();
   } catch (error) {
