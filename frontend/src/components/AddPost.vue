@@ -43,6 +43,8 @@ async function addPost() {
     });
     const data = await response.json();
     console.log(data);
+    img.value = null;
+    post.value = "";
     props.getAllPost();
   } catch (error) {
     console.error(error);
