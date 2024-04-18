@@ -26,8 +26,7 @@ const post = ref("");
 const img = ref(null);
 
 function handleFileSelect(event) {
-  const file = event.target.files[0];
-  img.value = file;
+  img.value = event.target.files[0];
 }
 
 async function addPost() {
