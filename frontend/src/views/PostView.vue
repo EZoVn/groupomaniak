@@ -8,21 +8,21 @@
         <li
           class="m-4 flex flex-col gap-4 rounded-md border p-4"
           v-for="(post, index) in posts"
-          :key="post.id"
+          :key="post.post_id"
         >
           <div class="flex items-center justify-between">
             <p class="font-bold">UserID {{ post.user_id }}</p>
             <div>
-              <button class="m-2 border p-2" @click="deletePost(post.id)">
+              <button class="m-2 border p-2" @click="deletePost(post.post_id)">
                 Supprimer
               </button>
-              <button @click="switchModifyPost(post.id)" class="m-2 border p-2">
+              <button @click="switchModifyPost(post.post_id)" class="m-2 border p-2">
                 Modifier
               </button>
             </div>
           </div>
 
-          <div class="flex flex-col" v-show="modifyPostActive === post.id">
+          <div class="flex flex-col" v-show="modifyPostActive === post.post_id">
             <label class="text-center" for="post">Modifier un post</label>
             <input
               @input="modifyPostInput = $event.target.value"
@@ -45,15 +45,16 @@
               </button>
               <button
                 class="m-auto w-max rounded bg-slate-400 px-6 py-2 text-sm font-normal text-white"
-                @click="modifyPost(modifyPostInput, post.id)"
+                @click="modifyPost(modifyPostInput, post.post_id)"
               >
                 Modifier
               </button>
             </div>
           </div>
 
-          <h3>{{ post.content }}</h3>
-          <img v-if="post.imgUrl" :src="post.imgUrl" alt="description image" class="rounded"/>
+          <h3>{{ post.post_content }}</h3>
+          <img v-if="post.post_imgUrl" :src="post.post_imgUrl" alt="description image" class="rounded"/>
+          <Comments :getAllPost="getAllPost" :post="post"/>
         </li>
       </ul>
     </div>
@@ -62,6 +63,7 @@
 
 <script setup>
 import AddPost from "@/components/AddPost.vue";
+import Comments from '@/components/Comments.vue';
 import { ref, onMounted } from "vue";
 const modifyPostActive = ref(null);
 const modifyPostInput = ref("");
@@ -85,7 +87,7 @@ async function getAllPost() {
     const response = await fetch("http://localhost:8080/api/post");
     const data = await response.json();
     posts.value = data;
-    console.log("getAllPost");
+    console.log("getAllPost", data);
   } catch (error) {
     console.error(error);
   }

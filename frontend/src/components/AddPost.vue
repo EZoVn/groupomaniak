@@ -20,7 +20,9 @@
 <script setup>
 import { ref } from "vue";
 
-const props = defineProps(["getAllPost"]);
+const props = defineProps({
+  getAllPost: Function,
+});
 
 const post = ref("");
 const img = ref(null);

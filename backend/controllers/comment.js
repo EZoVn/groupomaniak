@@ -4,7 +4,6 @@ const Comment = require("../models/Comment");
 exports.createComment = async (req, res, next) => {
   const { userId, content } = req.body;
   const postId = parseInt(req.params.post_id);
-  console.log(req.body, postId);
   if (!userId || !content) {
     return res.status(400).json({ message: "Aucun champ ne doit être vide" });
   }
@@ -78,6 +77,6 @@ exports.modifyComment = async (req, res, next) => {
     connection.end();
     return res.status(200).json({ message: "Commentaire modifié" });
   } catch (error) {
-    return res.status(500).json({ message: "Database Error", error: err });
+    return res.status(500).json({ message: "Database Error", error: err.message });
   }
 }

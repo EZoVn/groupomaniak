@@ -32,7 +32,30 @@ exports.createPost = async (req, res, next) => {
 exports.getAllPost = async (req, res, next) => {
   try {
     const connection = await DB();
-    const sql = `SELECT * FROM posts`;
+    // const sql = `SELECT * FROM posts`;
+    const sql = `
+    SELECT 
+      posts.id AS post_id,
+      posts.content AS post_content,
+      posts.imgUrl AS post_imgUrl,
+      posts.created_at AS post_created_at,
+      users.id AS user_id,
+      users.username AS username,
+      users.imgUser AS user_imgUser,
+      comments.id AS comment_id,
+      comments.user_id AS comment_user_id,
+      comments.post_id AS comment_post_id,
+      comments.content AS comment_content,
+      comments.created_at AS comment_created_at
+    FROM 
+        posts
+    LEFT JOIN 
+        users ON posts.user_id = users.id
+    LEFT JOIN 
+        comments ON posts.id = comments.post_id
+    ORDER BY 
+      posts.created_at DESC, comments.created_at ASC;
+    `;
     const [rows] = await connection.execute(sql);
     connection.end();
     return res.status(200).json(rows);
