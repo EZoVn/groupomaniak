@@ -19,6 +19,7 @@
 
 <script setup>
 import { ref } from "vue";
+import {apiFetch} from "../_services/caller.service";
 
 const props = defineProps({
   getAllPost: Function,
@@ -38,7 +39,7 @@ async function addPost() {
     formData.append("content", post.value);
     formData.append("userId", user.userId);
     formData.append("file", img.value);
-    const response = await fetch("http://localhost:8080/api/post", {
+    const response = await apiFetch("http://localhost:8080/api/post", {
       method: "POST",
       body: formData,
     });
@@ -51,4 +52,27 @@ async function addPost() {
     console.error(error);
   }
 }
+// async function addPost() {
+//   try {
+//     let user = JSON.parse(localStorage.getItem("user"));
+//     const formData = new FormData();
+//     formData.append("content", post.value);
+//     formData.append("userId", user.userId);
+//     formData.append("file", img.value);
+//     const response = await fetch("http://localhost:8080/api/post", {
+//       method: "POST",
+//       headers: {
+//         "Authorization": `Bearer ${user.token}`,
+//       },
+//       body: formData,
+//     });
+//     const data = await response.json();
+//     console.log(data);
+//     img.value = null;
+//     post.value = "";
+//     props.getAllPost();
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 </script>

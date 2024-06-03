@@ -22,12 +22,12 @@
             </div>
           </div>
 
-          <div class="flex flex-col" v-show="modifyPostActive === post.post_id">
+          <div class="flex flex-col" v-if="modifyPostActive === post.post_id">
             <label class="text-center" for="post">Modifier un post</label>
             <input
               @input="modifyPostInput = $event.target.value"
               type="text"
-              placeholder="Commencer un post"
+              placeholder="Modifier le post"
             />
             <div class="flex justify-around p-4">
               <input
@@ -70,6 +70,9 @@ const modifyPostInput = ref("");
 const posts = ref([]);
 const newImage = ref(null);
 
+function getToken() {
+  return localStorage.getItem("user");
+}
 function handleFileSelected(event) {
   newImage.value = event.target.files[0];
   console.log(event.target.files[0]);
@@ -84,7 +87,15 @@ const switchModifyPost = (index) => {
 };
 async function getAllPost() {
   try {
-    const response = await fetch("http://localhost:8080/api/post");
+    let user = JSON.parse(localStorage.getItem("user"));
+    console.log(user);
+    const response = await fetch("http://localhost:8080/api/post", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`,
+      },
+    });
     const data = await response.json();
     posts.value = data;
     console.log("getAllPost", data);
