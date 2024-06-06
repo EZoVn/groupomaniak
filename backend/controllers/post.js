@@ -105,7 +105,6 @@ exports.deletePost = async (req, res, next) => {
     const sql = `SELECT * FROM posts WHERE id = ?`;
     const [rows] = await connection.execute(sql, [postId]);
     const post = rows[0];
-    console.log(post);
     if (!post.imgUrl) {
       const sql = `DELETE FROM posts WHERE id = ?`;
       await connection.execute(sql, [postId]);
@@ -113,7 +112,6 @@ exports.deletePost = async (req, res, next) => {
       return res.status(200).json({ message: "Post deleted without imgUrl" });
     }
     const filename = post.imgUrl.split("/images/")[1];
-    console.log(filename);
     fs.unlink(`images/${filename}`, async () => {
       const sql = `DELETE FROM posts WHERE id = ?`;
       await connection.execute(sql, [postId]);

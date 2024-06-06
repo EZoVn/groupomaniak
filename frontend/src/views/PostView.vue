@@ -88,7 +88,7 @@ const switchModifyPost = (index) => {
 async function getAllPost() {
   try {
     let user = JSON.parse(localStorage.getItem("user"));
-    console.log(user);
+    // console.log(user);
     const response = await fetch("http://localhost:8080/api/post", {
       method: "GET",
       headers: {
@@ -98,7 +98,7 @@ async function getAllPost() {
     });
     const data = await response.json();
     posts.value = data;
-    console.log("getAllPost", data);
+    // console.log("getAllPost", data);
   } catch (error) {
     console.error(error);
   }
@@ -106,11 +106,13 @@ async function getAllPost() {
 
 async function deletePost(postId) {
   console.log(postId);
+  let user = JSON.parse(localStorage.getItem("user"));
   try {
     const response = await fetch(`http://localhost:8080/api/post/${postId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`,
       },
     });
     const data = await response.json();

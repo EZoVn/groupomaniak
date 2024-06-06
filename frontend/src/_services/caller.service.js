@@ -1,12 +1,11 @@
 export async function apiFetch(url, options = {}) {
-  const user = localStorage.getItem('user');
-  console.log(user);
+  const user = JSON.parse(localStorage.getItem("user"));
+  // console.log(user);
   if (!user) {
     return console.error("No token");
   }
 
   const headers = {
-    'Content-Type': 'application/json',
     'Authorization': `Bearer ${user.token}`,
     ...options.headers
   };
@@ -15,12 +14,13 @@ export async function apiFetch(url, options = {}) {
     ...options,
     headers
   });
-
+  console.log(response);
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "request failed");
   }
 
-  // const data = await response.json();
-  return response.json();
+  const data = await response.json();
+  console.log(data);
+  return data;
 }

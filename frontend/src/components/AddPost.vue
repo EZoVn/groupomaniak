@@ -43,7 +43,8 @@ async function addPost() {
       method: "POST",
       body: formData,
     });
-    const data = await response.json();
+    // const data = await response.json();
+    const data = await response;
     console.log(data);
     img.value = null;
     post.value = "";

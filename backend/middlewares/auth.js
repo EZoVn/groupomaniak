@@ -6,13 +6,17 @@ const extractBearer = (authorization) => {
     return false;
   }
   const matches = authorization.match(/(bearer)\s+(\S+)/i);
+  // console.log(matches);
   return matches && matches[2];
 };
 
 module.exports = async (req, res, next) => {
   try {
-    const token =
-      req.headers.authorization && extractBearer(req.headers.authorization);
+    // console.log("Authorization header:", req.headers.authorization);
+    const token = req.headers.authorization && extractBearer(req.headers.authorization);
+    if (!token) {
+      return res.status(401).json({ message: "Token not provided" });
+    }
     const verif = jwt.verify(token, process.env.TOKEN);
     let userId = parseInt(verif.id);
     req.body.user_id = null;
@@ -22,7 +26,6 @@ module.exports = async (req, res, next) => {
     const [rows] = await connection.execute(sql, [userId]);
     const user = rows[0];
     connection.end();
-    // console.log(user);
 
     if (!user) {
       return res.status(401).json({
@@ -30,12 +33,22 @@ module.exports = async (req, res, next) => {
       });
     } else {
       req.body.user_id = user.id;
-      req.body.isAdmin = user.isAdmin;
+      // req.body.isAdmin = user.isAdmin;
       next();
     }
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "le token est expire", error });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res
+        .status(401)
+        .json({ message: "le token est invalide", error });
+    }
     return res
-      .status(401)
-      .json({ message: "la requête est invalide ou non autorisé !", error });
+      .status(500)
+      .json({ message: "Erreur serveur", error });
   }
 };
