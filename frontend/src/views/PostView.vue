@@ -64,15 +64,13 @@
 <script setup>
 import AddPost from "@/components/AddPost.vue";
 import Comments from '@/components/Comments.vue';
+import { apiFetch } from "@/_services/caller.service";
 import { ref, onMounted } from "vue";
 const modifyPostActive = ref(null);
 const modifyPostInput = ref("");
 const posts = ref([]);
 const newImage = ref(null);
 
-function getToken() {
-  return localStorage.getItem("user");
-}
 function handleFileSelected(event) {
   newImage.value = event.target.files[0];
   console.log(event.target.files[0]);
@@ -85,20 +83,16 @@ const switchModifyPost = (index) => {
     modifyPostActive.value = index;
   }
 };
+
 async function getAllPost() {
   try {
-    let user = JSON.parse(localStorage.getItem("user"));
-    // console.log(user);
-    const response = await fetch("http://localhost:8080/api/post", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${user.token}`,
-      },
+    const response = apiFetch("http://localhost:8080/api/post",{
+      method: "GET"
     });
-    const data = await response.json();
+    const data = await response;
     posts.value = data;
-    // console.log("getAllPost", data);
+
+    console.log(data)
   } catch (error) {
     console.error(error);
   }
@@ -106,22 +100,18 @@ async function getAllPost() {
 
 async function deletePost(postId) {
   console.log(postId);
-  let user = JSON.parse(localStorage.getItem("user"));
   try {
-    const response = await fetch(`http://localhost:8080/api/post/${postId}`, {
+    const response = await apiFetch(`http://localhost:8080/api/post/${postId}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${user.token}`,
-      },
     });
-    const data = await response.json();
+    const data = await response;
     console.log(data);
     getAllPost();
   } catch (error) {
     console.error(error);
   }
 }
+
 async function modifyPost(content, postId) {
   try {
     console.log(content, postId, newImage.value);
@@ -130,11 +120,11 @@ async function modifyPost(content, postId) {
     formData.append("content", content);
     formData.append("userId", user.userId);
     formData.append("file", newImage.value);
-    const response = await fetch(`http://localhost:8080/api/post/${postId}`, {
+    const response = await apiFetch(`http://localhost:8080/api/post/${postId}`, {
       method: "PUT",
       body: formData,
     });
-    const data = await response.json();
+    const data = await response;
     console.log(data);
     newImage.value = null;
     modifyPostActive.value = null;

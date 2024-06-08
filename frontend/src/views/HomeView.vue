@@ -111,7 +111,6 @@ async function login() {
       console.log(error);
     }
     const data = await response.json();
-    console.log(data.access_token, data.user_id);
     localStorage.setItem("user", JSON.stringify({token : data.access_token, userId: data.user_id}));
     router.push("/Post");
   } catch (error) {

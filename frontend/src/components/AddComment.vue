@@ -17,15 +17,17 @@
 </template>
 <script setup>
 import { ref } from "vue";
+import { apiFetch } from "@/_services/caller.service";
 const comment = ref("");
 const props = defineProps({
   getAllPost: Function,
   postId: Number,
+  switchAddComment: Boolean,
 });
 async function addComment(postId) {
   try {
     let user = JSON.parse(localStorage.getItem("user"));
-    const response = await fetch(
+    const response = await apiFetch(
       `http://localhost:8080/api/comment/${postId}`,
       {
         method: "POST",
@@ -38,8 +40,10 @@ async function addComment(postId) {
         }),
       },
     );
-    const data = await response.json();
+    const data = await response;
     comment.value = "";
+    props.switchAddComment = false;
+    console.log(props.switchAddComment)
     props.getAllPost();
   } catch (error) {
     console.error(error, error.message);
