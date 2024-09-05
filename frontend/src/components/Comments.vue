@@ -98,6 +98,7 @@ async function deleteComment(commentId) {
         },
       },
     );
+    console.log(response)
     const data = await response;
     console.log(data);
     props.getAllPost();

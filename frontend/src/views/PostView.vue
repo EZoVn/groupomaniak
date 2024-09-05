@@ -1,5 +1,6 @@
 <template>
   <h1>Post</h1>
+  <button v-if="isLogged" @click="logout"> Deconnexion</button>
   <section>
     <AddPost :getAllPost="getAllPost" />
     <div>
@@ -65,11 +66,26 @@
 import AddPost from "@/components/AddPost.vue";
 import Comments from '@/components/Comments.vue';
 import { apiFetch } from "@/_services/caller.service";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 const modifyPostActive = ref(null);
 const modifyPostInput = ref("");
 const posts = ref([]);
 const newImage = ref(null);
+
+
+const isLogged = computed(() => {
+  return JSON.parse(localStorage.getItem("user")) ? true : false;
+});
+
+function logout() {
+  localStorage.removeItem("user");
+  isLogged.value = false;
+  router.push("/");
+}
+
 
 function handleFileSelected(event) {
   newImage.value = event.target.files[0];
