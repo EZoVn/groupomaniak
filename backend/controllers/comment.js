@@ -51,71 +51,55 @@ exports.getOneComment = async (req, res, next) => {
   }
 }
 
-// exports.deleteComment = async (req, res, next) => {
-//   const commentId = parseInt(req.params.id);
-//   if (!commentId) {
-//     return res.status(400).json({ message: "Aucun commentaire séléctionner" });
-//   }
-//   try {
-//     const token = req.headers.authorization && extractBearer(req.headers.authorization);
-//     if (!token) {
-//       return res.status(401).json({ message: "Token not provided" });
-//     }
-//     const verif = jwt.verify(token, process.env.TOKEN);
-//     let userId = parseInt(verif.id);
-//     console.log('userId', userId)
 
-//     const connection = await DB();
-
-//     const [commentRows] = await connection.execute(`SELECT * FROM comments WHERE id = ?`, [commentId]);
-
-//     const comment = commentRows[0];
-//     console.log(comment)
-//     if (!comment) {
-//       connection.end();
-//       return res.status(404).json({ message: "Commentaire non trouvé" });
-//     }
-
-//     if (comment.user_id === userId) {
-//       const sql = `DELETE FROM comments WHERE id = ?`;
-//       await connection.execute(sql, [commentId]);
-//       connection.end();
-//       return res.status(200).json({ message: "Commentaire supprimé" });
-//     } else {
-//       return res.status(403).json({ message: "Non authentifié" });
-//     }
-
-//   } catch (error) {
-//     return res.status(500).json({ message: "Database Error", error: err });
-//   }
-// }
 exports.deleteComment = async (req, res, next) => {
-  const contentType = req.params.contentType;
   const commentId = parseInt(req.params.id);
-  console.log('params', req.params)
+  const isAdmin = req.body.isAdmin;
   if (!commentId) {
     return res.status(400).json({ message: "Aucun commentaire séléctionner" });
   }
   try {
     const connection = await DB();
-    const sql = `DELETE FROM comments WHERE id = ?`;
-    await connection.execute(sql, [commentId]);
-    connection.end();
-    return res.status(200).json({ message: "Commentaire supprimé" });
+    const [comment] = await connection.execute(`SELECT * FROM comments WHERE id = ?`, [commentId]);
+    if (!comment) {
+      connection.end();
+      return res.status(404).json({ message: "Commentaire non trouvé" });
+    }
+    const user_id = req.body.user_id;
+    if (comment[0].user_id === user_id || isAdmin === true) {
+      const sql = `DELETE FROM comments WHERE id = ?`;
+      await connection.execute(sql, [commentId]);
+      connection.end();
+      return res.status(200).json({ message: "Commentaire supprimé" });
+    } else {
+      return res.status(403).json({ message: "Non authentifié" });
+    }
+
   } catch (error) {
     return res.status(500).json({ message: "Database Error", error: err });
   }
 }
 
+
+
 exports.modifyComment = async (req, res, next) => {
   const commentId = parseInt(req.params.id);
-  const { content } = req.body;
+  const { content, user_id, isAdmin } = req.body;
   try {
     const connection = await DB();
-    const sql = `UPDATE comments SET content = ? WHERE id = ?`;
-    await connection.execute(sql, [content, commentId]);
-    connection.end();
-    return res.status(200).json({ message: "Commentaire modifié" });
+    const [comment] = await connection.execute(`SELECT * FROM comments WHERE id = ?`, [commentId]);
+    if (!comment) {
+      connection.end();
+      return res.status(404).json({ message: "Commentaire non trouvé" });
+    }
+    if (comment[0].user_id === user_id || isAdmin === true) {
+      const sql = `UPDATE comments SET content = ? WHERE id = ?`;
+      await connection.execute(sql, [content, commentId]);
+      connection.end();
+      return res.status(200).json({ message: "Commentaire modifié" });
+    } else {
+      return res.status(403).json({ message: "Non authentifié" });
+    }
   } catch (error) {
     return res.status(500).json({ message: "Database Error", error: err.message });
   }

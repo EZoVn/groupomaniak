@@ -6,7 +6,6 @@ const extractBearer = (authorization) => {
     return false;
   }
   const matches = authorization.match(/(bearer)\s+(\S+)/i);
-  // console.log(matches);
   return matches && matches[2];
 };
 
@@ -37,31 +36,7 @@ module.exports = async (req, res, next) => {
       req.body.user_id = user.id;
       return next();
     }
-
-    // const { contentType, contentId } = req.params;
-    // console.log(req.params);
-    // console.log('contentType, contentId', contentType, contentId);
-
-    // let sql;
-    // if (contentType === "comment") {
-    //   sql = `SELECT * FROM comments WHERE id = ? AND user_id = ?`;
-    // } else if (contentType === "post") {
-    //   sql = `SELECT * FROM posts WHERE id = ? AND user_id = ?`;
-    // } else {
-    //   connection.end();
-    //   return res.status(400).json({ message: "Type de contenu invalide" });
-    // }
-    // const [contentRows] = await connection.execute(sql, [contentId, userId]);
-    // console.log(contentRows);
-    // const content = contentRows[0];
-
-    // connection.end();
-
-    // if (!content) {
-    //   return res.status(403).json({ message: "Vous n'êtes pas autorisé à modifier ce contenu" });
-    // }
     req.body.user_id = user.id;
-    console.log('next')
     next();
 
   } catch (error) {
