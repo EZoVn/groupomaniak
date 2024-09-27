@@ -24,6 +24,7 @@ module.exports = async (req, res, next) => {
     const sqlUser = `SELECT * FROM users WHERE id = ?`;
     const [rows] = await connection.execute(sqlUser, [userId]);
     const user = rows[0];
+    console.log(rows[0]);
 
     if (!user) {
       connection.end();
@@ -33,6 +34,7 @@ module.exports = async (req, res, next) => {
     }
 
     if (user.role === 'admin') {
+      console.log(admin)
       req.body.user_id = user.id;
       return next();
     }

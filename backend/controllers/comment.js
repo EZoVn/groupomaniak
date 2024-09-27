@@ -81,26 +81,20 @@ exports.deleteComment = async (req, res, next) => {
 }
 
 
-
+// Il faut capter les différentes erreurs
 exports.modifyComment = async (req, res, next) => {
   const commentId = parseInt(req.params.id);
-  const { content, user_id, isAdmin } = req.body;
+  const { content, user_id } = req.body;
   try {
     const connection = await DB();
-    const [comment] = await connection.execute(`SELECT * FROM comments WHERE id = ?`, [commentId]);
-    if (!comment) {
-      connection.end();
-      return res.status(404).json({ message: "Commentaire non trouvé" });
-    }
-    if (comment[0].user_id === user_id || isAdmin === true) {
-      const sql = `UPDATE comments SET content = ? WHERE id = ?`;
-      await connection.execute(sql, [content, commentId]);
-      connection.end();
-      return res.status(200).json({ message: "Commentaire modifié" });
-    } else {
-      return res.status(403).json({ message: "Non authentifié" });
-    }
+    // const sql = `UPDATE comments SET content = ? WHERE id = ? AND user_id = ?`;
+    // const [rows] = await connection.execute(sql, [content, commentId, user_id]);
+    const sql = `UPDATE comments JOIN comments.users ON user_id = users.id SET comments.content = ? WHERE comments.id = ? AND (comments.users.id = ? OR users.role= 'admin')`;
+    const [rows] = await connection.execute(sql, [content, commentId, user_id]);
+    console.log(rows);
+    connection.end();
+    return res.status(200).json({ message: "Commentaire modifié" });
   } catch (error) {
-    return res.status(500).json({ message: "Database Error", error: err.message });
+    return res.status(500).json({ message: "Database Error", error: error.message });
   }
 }

@@ -17,7 +17,14 @@ export async function apiFetch(url, options = {}) {
   console.log(response);
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "request failed");
+
+    if (response.status === 401 && errorData.message === "Token expired") {
+      alert("Votre session a expiré, veuillez vous reconnecter.");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+
+    throw new Error(errorData.message || "request failedee");
   }
   return await response.json();;
 }

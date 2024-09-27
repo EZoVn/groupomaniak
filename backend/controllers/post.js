@@ -159,8 +159,6 @@ exports.modifyPost = async (req, res, next) => {
           }
         });
         let imgUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-        // const sql = `UPDATE posts SET user_id = ?, content = ?, imgUrl = ? WHERE id = ?`;
-        // await connection.execute(sql, [userId, content, imgUrl, postId]);
         const sql = `UPDATE posts SET content = ?, imgUrl = ? WHERE id = ? AND user_id = ?`;
         await connection.execute(sql, [content, imgUrl, postId, userId]);
         console.log("Post modified", imgUrl);
@@ -170,8 +168,6 @@ exports.modifyPost = async (req, res, next) => {
     }
     if (!req.file) {
       console.log("!req.file", post.imgUrl);
-      // const sql = `UPDATE posts SET user_id = ?, content = ? WHERE id = ?`;
-      // await connection.execute(sql, [userId, content, postId]);
       const sql = `UPDATE posts SET content = ? WHERE id = ? AND user_id = ?`;
       await connection.execute(sql, [content, postId, userId]);
       connection.end();
